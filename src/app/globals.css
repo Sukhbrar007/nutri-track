@@ -1,0 +1,432 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.0495 0.0204 252.4419);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.0495 0.0204 252.4419);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.0495 0.0204 252.4419);
+
+  --primary: oklch(0.5333 0.1985 251.2531);
+  --primary-foreground: oklch(0.98 0.005 252.4419);
+
+  --secondary: oklch(0.961 0.0123 252.4419);
+  --secondary-foreground: oklch(0.1122 0.0205 252.4419);
+
+  --muted: oklch(0.961 0.0123 252.4419);
+  --muted-foreground: oklch(0.469 0.0052 252.4419);
+
+  --accent: oklch(0.961 0.0123 252.4419);
+  --accent-foreground: oklch(0.1122 0.0205 252.4419);
+
+  --destructive: oklch(0.6022 0.2236 29.2349);
+  --destructive-foreground: oklch(0.98 0.005 252.4419);
+
+  --border: oklch(0.914 0.0276 252.4419);
+  --input: oklch(0.914 0.0276 252.4419);
+  --ring: oklch(0.5333 0.1985 251.2531);
+
+  /* Border Radius */
+  --radius: 0.5rem;
+
+  /* Animations */
+  --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@theme dark {
+  --background: oklch(0.0495 0.0204 252.4419);
+  --foreground: oklch(0.98 0.005 252.4419);
+
+  --card: oklch(0.0495 0.0204 252.4419);
+  --card-foreground: oklch(0.98 0.005 252.4419);
+
+  --popover: oklch(0.0495 0.0204 252.4419);
+  --popover-foreground: oklch(0.98 0.005 252.4419);
+
+  --primary: oklch(0.598 0.2627 257.2531);
+  --primary-foreground: oklch(0.1122 0.0205 252.4419);
+
+  --secondary: oklch(0.175 0.0138 252.4419);
+  --secondary-foreground: oklch(0.98 0.005 252.4419);
+
+  --muted: oklch(0.175 0.0138 252.4419);
+  --muted-foreground: oklch(0.651 0.0062 252.4419);
+
+  --accent: oklch(0.175 0.0138 252.4419);
+  --accent-foreground: oklch(0.98 0.005 252.4419);
+
+  --destructive: oklch(0.306 0.145 29.2349);
+  --destructive-foreground: oklch(0.98 0.005 252.4419);
+
+  --border: oklch(0.175 0.0138 252.4419);
+  --input: oklch(0.175 0.0138 252.4419);
+  --ring: oklch(0.48 0.1985 264.3);
+}
+
+/* Custom Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes pulseSlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Custom Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.animate-bounce-dots {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
+  background-size: 1000px 100%;
+}
+
+/* Animation Delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Loading Progress Bar Styles */
+.loading-bar {
+  height: 3px;
+  background-image: linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  transition: width 0.2s ease;
+}
+
+.loading-percentage {
+  position: fixed;
+  top: 6px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  z-index: 9999;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading Spinner Styles */
+.loading-spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  border-top-color: #3b82f6;
+  animation: spin-slow 1s linear infinite;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Enhanced Calendar Styles */
+.enhanced-calendar .react-calendar {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.enhanced-calendar .react-calendar__tile {
+  height: 75px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 8px;
+  position: relative;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.enhanced-calendar .react-calendar__tile:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.enhanced-calendar .react-calendar__month-view__days__day--weekend {
+  color: #9ca3af;
+}
+
+.enhanced-calendar .react-calendar__tile--active {
+  background: #ebf5ff !important;
+  color: #2563eb !important;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.enhanced-calendar .react-calendar__tile--now {
+  background: #f0f9ff;
+  font-weight: bold;
+}
+
+.enhanced-calendar .react-calendar__navigation {
+  margin-bottom: 8px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.enhanced-calendar .react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  border-radius: 8px;
+  margin: 0 2px;
+}
+
+.enhanced-calendar .react-calendar__navigation button:disabled {
+  background-color: #f9fafb;
+}
+
+.enhanced-calendar .react-calendar__navigation button:enabled:hover,
+.enhanced-calendar .react-calendar__navigation button:enabled:focus {
+  background-color: #f3f4f6;
+}
+
+.enhanced-calendar .react-calendar__month-view__weekdays__weekday {
+  padding: 0.75rem 0;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #4b5563;
+  text-transform: uppercase;
+}
+
+.enhanced-calendar .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+.enhanced-calendar .day-data-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+}
+
+.enhanced-calendar .day-data-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Gradient Button Styles */
+.gradient-button {
+  background-image: linear-gradient(to right, #3b82f6, #6366f1, #8b5cf6);
+  color: white;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.gradient-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(to right, #2563eb, #4f46e5, #7c3aed);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+}
+
+.gradient-button:hover::before {
+  opacity: 1;
+}
+
+/* Card Hover Effects */
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
