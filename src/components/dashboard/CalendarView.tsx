@@ -12,6 +12,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import {
   ChevronLeft,
   ChevronRight,
@@ -51,18 +52,22 @@ export default function EnhancedCalendarView({
   const [selectedDayData, setSelectedDayData] = useState<DayData | null>(null);
   const [calendarView, setCalendarView] = useState<"month" | "day">("month");
   const router = useRouter();
+  const estTimeZone = "America/New_York";
 
   useEffect(() => {
     // When dayData changes, check if currently selected date has data
     if (selectedDate && dayData) {
-      const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+      const selectedDateStr = format(
+        toZonedTime(selectedDate, estTimeZone),
+        "yyyy-MM-dd"
+      );
       const matchingData = dayData.find((d) => d.date === selectedDateStr);
       setSelectedDayData(matchingData || null);
     }
   }, [dayData, selectedDate]);
 
   const onDateClick = (day: Date) => {
-    const formattedDate = format(day, "yyyy-MM-dd");
+    const formattedDate = format(toZonedTime(day, estTimeZone), "yyyy-MM-dd");
 
     // Always set the selected date
     setSelectedDate(day);

@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { format } from "date-fns";
+import { format, toZonedTime } from "date-fns-tz";
 import DailySummary from "@/components/dashboard/DailySummary";
 import Loading from "@/components/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -67,15 +67,20 @@ function DashboardPageContent() {
 
         const data = await response.json();
 
-        // Fix date timezone issues by ensuring dates are in YYYY-MM-DD format
         const processedTodaySummary = {
           ...data.todaySummary,
-          date: format(new Date(data.todaySummary.date), "yyyy-MM-dd"),
+          date: format(
+            toZonedTime(new Date(data.todaySummary.date), estTimeZone),
+            "yyyy-MM-dd"
+          ),
         };
 
         const processedDailyData = data.dailyData.map((day: any) => ({
           ...day,
-          date: format(new Date(day.date), "yyyy-MM-dd"),
+          date: format(
+            toZonedTime(new Date(day.date), estTimeZone),
+            "yyyy-MM-dd"
+          ),
         }));
 
         setGoals(data.goals);
@@ -95,8 +100,11 @@ function DashboardPageContent() {
   }, [session]);
 
   // Format current date
-  const today = new Date();
-  const formattedDate = format(today, "EEEE, MMMM d, yyyy");
+  const estTimeZone = "America/New_York";
+  const today = toZonedTime(new Date(), estTimeZone);
+  const formattedDate = format(today, "EEEE, MMMM d, yyyy", {
+    timeZone: estTimeZone,
+  });
 
   if (!session) {
     return null;

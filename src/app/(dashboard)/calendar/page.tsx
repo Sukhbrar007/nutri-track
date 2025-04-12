@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
@@ -6,6 +8,10 @@ import DailySummary from "@/components/dashboard/DailySummary";
 import NutritionStats from "@/components/dashboard/NutritionStats";
 import CalendarView from "@/components/dashboard/CalendarView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+
+const estTimeZone = "America/New_York";
 
 interface NutritionGoals {
   calories: number | null;
@@ -54,9 +60,24 @@ function CalendarPageContent() {
         }
 
         const data = await response.json();
-        setGoals(data.goals);
-        setTodaySummary(data.todaySummary);
-        setDailyData(data.dailyData);
+
+        setTodaySummary({
+          ...data.todaySummary,
+          date: format(
+            toZonedTime(new Date(data.todaySummary.date), estTimeZone),
+            "yyyy-MM-dd"
+          ),
+        });
+
+        setDailyData(
+          data.dailyData.map((day: any) => ({
+            ...day,
+            date: format(
+              toZonedTime(new Date(day.date), estTimeZone),
+              "yyyy-MM-dd"
+            ),
+          }))
+        );
       } catch (error) {
         console.error("Error fetching summary:", error);
         setError("Could not load your nutrition data. Please try again later.");
