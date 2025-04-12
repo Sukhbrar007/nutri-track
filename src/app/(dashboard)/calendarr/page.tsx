@@ -119,11 +119,7 @@ function CalendarPageContent() {
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Daily Summary Card */}
           <div>
-            <DailySummary
-              summary={todaySummary}
-              goals={goals}
-              date={new Date(todaySummary.date)}
-            />
+            <DailySummary summary={todaySummary} goals={goals} />
           </div>
 
           {/* Calendar View */}

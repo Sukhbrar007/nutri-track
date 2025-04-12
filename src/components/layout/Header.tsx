@@ -9,7 +9,7 @@ import {
   X,
   LogOut,
   Home,
-  CalendarDays,
+  // CalendarDays,
   Settings,
   User,
   ShieldCheck,
@@ -39,7 +39,7 @@ export default function Header() {
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Calendar", href: "/calendar", icon: CalendarDays },
+    // { name: "Calendar", href: "/calendar", icon: CalendarDays },
     {
       name: "Calculator",
       href: "/calculator",

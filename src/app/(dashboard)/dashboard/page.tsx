@@ -3,19 +3,12 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { format, toZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
 import DailySummary from "@/components/dashboard/DailySummary";
 import Loading from "@/components/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import {
-  ArrowRight,
-  Target,
-  Calendar,
-  BarChart2,
-  Settings,
-  Plus,
-} from "lucide-react";
+import { ArrowRight, Target, BarChart2, Settings, Plus } from "lucide-react";
 import CalendarView from "@/components/dashboard/CalendarView";
 import NutritionStats from "@/components/dashboard/NutritionStats";
 
@@ -67,20 +60,15 @@ function DashboardPageContent() {
 
         const data = await response.json();
 
+        // Process date strings directly without timezone conversion
         const processedTodaySummary = {
           ...data.todaySummary,
-          date: format(
-            toZonedTime(new Date(data.todaySummary.date), estTimeZone),
-            "yyyy-MM-dd"
-          ),
+          date: data.todaySummary.date.split("T")[0],
         };
 
         const processedDailyData = data.dailyData.map((day: any) => ({
           ...day,
-          date: format(
-            toZonedTime(new Date(day.date), estTimeZone),
-            "yyyy-MM-dd"
-          ),
+          date: day.date.split("T")[0],
         }));
 
         setGoals(data.goals);
@@ -100,11 +88,8 @@ function DashboardPageContent() {
   }, [session]);
 
   // Format current date
-  const estTimeZone = "America/New_York";
-  const today = toZonedTime(new Date(), estTimeZone);
-  const formattedDate = format(today, "EEEE, MMMM d, yyyy", {
-    timeZone: estTimeZone,
-  });
+  const today = new Date();
+  const formattedDate = format(today, "EEEE, MMMM d, yyyy");
 
   if (!session) {
     return null;
@@ -139,11 +124,7 @@ function DashboardPageContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
-                <DailySummary
-                  summary={todaySummary}
-                  goals={goals}
-                  date={new Date(todaySummary.date)}
-                />
+                <DailySummary summary={todaySummary} goals={goals} />
 
                 <Card className="bg-white border border-gray-100 shadow-md rounded-xl overflow-hidden">
                   <CardHeader className="border-b border-gray-100 pb-3">
@@ -154,7 +135,7 @@ function DashboardPageContent() {
                   <CardContent className="p-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <a
-                        href={`/day/${format(new Date(), "yyyy-MM-dd")}`}
+                        href={`/day/${format(today, "yyyy-MM-dd")}`}
                         className="group bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 p-3 rounded-xl transition flex items-center justify-between"
                       >
                         <div className="flex items-center">
@@ -167,22 +148,6 @@ function DashboardPageContent() {
                         </div>
                         <ArrowRight className="h-4 w-4 text-blue-500 opacity-0 group-hover:opacity-100 transition" />
                       </a>
-
-                      <a
-                        href="/calendar"
-                        className="group bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 p-3 rounded-xl transition flex items-center justify-between"
-                      >
-                        <div className="flex items-center">
-                          <div className="bg-white rounded-lg p-2 shadow-sm mr-3">
-                            <Calendar className="h-5 w-5 text-amber-500" />
-                          </div>
-                          <span className="font-medium text-gray-800">
-                            View Calendar
-                          </span>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-amber-500 opacity-0 group-hover:opacity-100 transition" />
-                      </a>
-
                       <a
                         href="/calculator"
                         className="group bg-gradient-to-r from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 p-3 rounded-xl transition flex items-center justify-between"

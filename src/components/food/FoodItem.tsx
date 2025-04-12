@@ -41,16 +41,8 @@ export default function FoodItem({
 
   const { id, food, quantity } = foodLog;
 
-  // Calculate macronutrient percentages for visualization
+  // Calculate total calories
   const totalCalories = food.calories * quantity;
-  const proteinCalories = food.protein * 4 * quantity;
-  const carbCalories = food.carbs * 4 * quantity;
-  const fatCalories = food.fat * 9 * quantity;
-
-  const proteinPercentage =
-    Math.round((proteinCalories / totalCalories) * 100) || 0;
-  const carbPercentage = Math.round((carbCalories / totalCalories) * 100) || 0;
-  const fatPercentage = Math.round((fatCalories / totalCalories) * 100) || 0;
 
   const handleDelete = async () => {
     setIsUpdating(true);
@@ -113,29 +105,23 @@ export default function FoodItem({
             </div>
           )}
 
-          {/* Macronutrient visualization */}
-          <div className="mt-3 w-full h-3 flex rounded-full overflow-hidden">
-            <div
-              className="bg-emerald-500 h-full"
-              style={{ width: `${proteinPercentage}%` }}
-              title={`Protein: ${proteinPercentage / 100}%`}
-            ></div>
-            <div
-              className="bg-amber-500 h-full"
-              style={{ width: `${carbPercentage}%` }}
-              title={`Carbs: ${carbPercentage / 100}%`}
-            ></div>
-            <div
-              className="bg-red-500 h-full"
-              style={{ width: `${fatPercentage}%` }}
-              title={`Fat: ${fatPercentage / 100}%`}
-            ></div>
+          {/* Macronutrients as text */}
+          <div className="mt-3 flex space-x-3 text-xs text-gray-500">
+            <span className="text-emerald-500 font-medium">
+              P: {(food.protein * quantity).toFixed(1)}g
+            </span>
+            <span className="text-amber-500 font-medium">
+              C: {(food.carbs * quantity).toFixed(1)}g
+            </span>
+            <span className="text-red-500 font-medium">
+              F: {(food.fat * quantity).toFixed(1)}g
+            </span>
           </div>
         </div>
 
         <div className="flex flex-col items-end">
           <div className="text-lg font-semibold text-gray-900">
-            {food.calories * quantity}{" "}
+            {totalCalories}{" "}
             <span className="text-sm font-normal text-gray-500">kcal</span>
           </div>
           <div className="flex space-x-1 mt-2">
@@ -231,7 +217,7 @@ export default function FoodItem({
 
           <div className="space-y-4">
             <div>
-              <div className="flex justify-between items-center mb-1">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
                   <span className="font-medium">Protein</span>
@@ -240,19 +226,10 @@ export default function FoodItem({
                   {(food.protein * quantity).toFixed(1)} g
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="bg-emerald-500 h-2 rounded-full"
-                  style={{ width: `${proteinPercentage}%` }}
-                ></div>
-              </div>
-              <div className="mt-1 text-xs text-gray-500 text-right">
-                {proteinPercentage}% of calories
-              </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-1">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
                   <span className="font-medium">Carbs</span>
@@ -261,19 +238,10 @@ export default function FoodItem({
                   {(food.carbs * quantity).toFixed(1)} g
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="bg-amber-500 h-2 rounded-full"
-                  style={{ width: `${carbPercentage}%` }}
-                ></div>
-              </div>
-              <div className="mt-1 text-xs text-gray-500 text-right">
-                {carbPercentage}% of calories
-              </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center mb-1">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                   <span className="font-medium">Fat</span>
@@ -281,15 +249,6 @@ export default function FoodItem({
                 <span className="text-gray-900 font-semibold">
                   {(food.fat * quantity).toFixed(1)} g
                 </span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div
-                  className="bg-red-500 h-2 rounded-full"
-                  style={{ width: `${fatPercentage}%` }}
-                ></div>
-              </div>
-              <div className="mt-1 text-xs text-gray-500 text-right">
-                {fatPercentage}% of calories
               </div>
             </div>
           </div>

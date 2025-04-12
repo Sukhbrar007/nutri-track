@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   format,
@@ -12,7 +12,6 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
 import {
   ChevronLeft,
   ChevronRight,
@@ -52,35 +51,26 @@ export default function EnhancedCalendarView({
   const [selectedDayData, setSelectedDayData] = useState<DayData | null>(null);
   const [calendarView, setCalendarView] = useState<"month" | "day">("month");
   const router = useRouter();
-  const estTimeZone = "America/New_York";
-
-  useEffect(() => {
-    // When dayData changes, check if currently selected date has data
-    if (selectedDate && dayData) {
-      const selectedDateStr = format(
-        toZonedTime(selectedDate, estTimeZone),
-        "yyyy-MM-dd"
-      );
-      const matchingData = dayData.find((d) => d.date === selectedDateStr);
-      setSelectedDayData(matchingData || null);
-    }
-  }, [dayData, selectedDate]);
 
   const onDateClick = (day: Date) => {
-    const formattedDate = format(toZonedTime(day, estTimeZone), "yyyy-MM-dd");
+    // Use UTC methods to get a timezone-neutral date string
+    const year = day.getUTCFullYear();
+    const month = String(day.getUTCMonth() + 1).padStart(2, "0");
+    const dayNum = String(day.getUTCDate()).padStart(2, "0");
+    const dateString = `${year}-${month}-${dayNum}`;
 
     // Always set the selected date
     setSelectedDate(day);
 
-    // Find data for this date
-    const matchingData = dayData.find((d) => d.date === formattedDate);
+    // Find data for this date - using the direct string format matching
+    const matchingData = dayData.find((d) => d.date === dateString);
 
     if (matchingData) {
       setSelectedDayData(matchingData);
       setCalendarView("day");
     } else {
       // Navigate to add food for this day
-      router.push(`/day/${formattedDate}`);
+      router.push(`/day/${dateString}`);
     }
   };
 
@@ -103,30 +93,6 @@ export default function EnhancedCalendarView({
     return [...blanks, ...daysInMonth];
   };
 
-  // Get data for a specific date
-  const getDayData = (date: Date) => {
-    if (!date) return null;
-
-    const dateStr = format(date, "yyyy-MM-dd");
-    return dayData.find((d) => d.date === dateStr) || null;
-  };
-
-  // Calculate macronutrient percentages
-  const calculateMacroPercentages = (data: DayData) => {
-    const totalCalories = data.calories;
-    if (totalCalories === 0) return { protein: 0, carbs: 0, fat: 0 };
-
-    const proteinCalories = data.protein * 4;
-    const carbCalories = data.carbs * 4;
-    const fatCalories = data.fat * 9;
-
-    return {
-      protein: Math.round((proteinCalories / totalCalories) * 100) || 0,
-      carbs: Math.round((carbCalories / totalCalories) * 100) || 0,
-      fat: Math.round((fatCalories / totalCalories) * 100) || 0,
-    };
-  };
-
   // Get color based on calories compared to goal
   const getCalorieColor = (calories: number) => {
     const goal = nutritionGoals?.calories || 2000;
@@ -138,6 +104,16 @@ export default function EnhancedCalendarView({
     if (percentage <= 100) return "bg-green-100 text-green-600";
     if (percentage <= 115) return "bg-amber-100 text-amber-600";
     return "bg-red-100 text-red-600";
+  };
+
+  const getDataForDay = (day: Date) => {
+    // Format the date in the same way it's stored in API data
+    const year = day.getUTCFullYear();
+    const month = String(day.getUTCMonth() + 1).padStart(2, "0");
+    const dayNum = String(day.getUTCDate()).padStart(2, "0");
+    const dateString = `${year}-${month}-${dayNum}`;
+
+    return dayData.find((d) => d.date === dateString);
   };
 
   const renderDayCell = (day: Date | null, index: number) => {
@@ -155,13 +131,22 @@ export default function EnhancedCalendarView({
     const isToday = isSameDay(day, new Date());
     const isSelected = selectedDate && isSameDay(day, selectedDate);
 
+    // Check if date is in the future
+    const isFutureDate = day > new Date();
+
     // Get data for this day
-    const data = getDayData(day);
+    const data = getDataForDay(day);
     const hasData = !!data && data.calories > 0;
 
     // Base classes for the day cell
-    let cellClasses =
-      "h-20 p-2 border rounded-lg transition-all hover:shadow-md cursor-pointer ";
+    let cellClasses = "h-20 p-2 border rounded-lg transition-all ";
+
+    // Add hover and cursor styles only if not a future date
+    if (!isFutureDate) {
+      cellClasses += "hover:shadow-md cursor-pointer ";
+    } else {
+      cellClasses += "opacity-40 cursor-not-allowed ";
+    }
 
     if (!isCurrentMonth) {
       cellClasses += "opacity-40 ";
@@ -183,13 +168,13 @@ export default function EnhancedCalendarView({
       <div
         key={format(day, "yyyy-MM-dd")}
         className={cellClasses}
-        onClick={() => onDateClick(day)}
+        onClick={() => !isFutureDate && onDateClick(day)}
       >
         <div className="flex flex-col h-full">
           {/* Day number */}
           <div
             className={`text-right font-medium text-sm ${
-              isToday ? "text-blue-700" : ""
+              isToday ? "text-blue-700" : isFutureDate ? "text-gray-400" : ""
             }`}
           >
             {format(day, "d")}
@@ -217,12 +202,10 @@ export default function EnhancedCalendarView({
     );
   };
 
-  // Render day detail view
   const renderDayDetail = () => {
     if (!selectedDayData || !selectedDate) return null;
 
     const formattedDate = format(selectedDate, "EEEE, MMMM d, yyyy");
-    const macros = calculateMacroPercentages(selectedDayData);
 
     return (
       <div className="p-4 animate-fade-in">
@@ -268,32 +251,19 @@ export default function EnhancedCalendarView({
               Macronutrient Breakdown
             </h3>
 
-            {/* Visualization Bar */}
-            <div className="w-full h-3 flex rounded-full overflow-hidden mb-2">
-              {selectedDayData.calories > 0 ? (
-                <>
-                  <div
-                    className="bg-emerald-500 h-full"
-                    style={{ width: `${macros.protein}%` }}
-                  ></div>
-                  <div
-                    className="bg-amber-500 h-full"
-                    style={{ width: `${macros.carbs}%` }}
-                  ></div>
-                  <div
-                    className="bg-red-500 h-full"
-                    style={{ width: `${macros.fat}%` }}
-                  ></div>
-                </>
-              ) : (
-                <div className="bg-gray-200 h-full w-full"></div>
-              )}
-            </div>
-
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>P: {macros.protein / 100}%</span>
-              <span>C: {macros.carbs / 100}%</span>
-              <span>F: {macros.fat / 100}%</span>
+            <div className="grid grid-cols-3 gap-2 text-center text-xs text-gray-600 mb-3">
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full mr-1"></div>
+                <span>Protein</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
+                <span>Carbs</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                <span>Fat</span>
+              </div>
             </div>
           </div>
         </div>
@@ -346,7 +316,6 @@ export default function EnhancedCalendarView({
       </div>
     );
   };
-
   return (
     <Card className="bg-white border border-gray-100 shadow-md rounded-xl overflow-hidden">
       <CardHeader className="border-b border-gray-100 pb-3">
@@ -413,6 +382,12 @@ export default function EnhancedCalendarView({
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-green-50 border border-green-200 rounded-full mr-1"></div>
                   <span className="text-xs text-gray-500">Has data</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-gray-100 border border-gray-200 rounded-full mr-1"></div>
+                  <span className="text-xs text-gray-500">
+                    Future (disabled)
+                  </span>
                 </div>
               </div>
             </div>

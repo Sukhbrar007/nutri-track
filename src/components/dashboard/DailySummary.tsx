@@ -18,21 +18,9 @@ interface DailySummaryProps {
     carbs: number | null;
     fat: number | null;
   };
-  date: Date;
 }
 
-export default function DailySummary({
-  summary,
-  goals,
-  date,
-}: DailySummaryProps) {
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
+export default function DailySummary({ summary, goals }: DailySummaryProps) {
   // Default values if data is missing
   const safeCalories = summary?.calories || 0;
   const safeProtein = summary?.protein || 0;
@@ -44,54 +32,35 @@ export default function DailySummary({
   const safeCarbsGoal = goals?.carbs || 200;
   const safeFatGoal = goals?.fat || 65;
 
-  const isToday = new Date().toDateString() === new Date(date).toDateString();
-
-  // Calculate progress percentages with safety checks
-  const calculateProgress = (value: number, goal: number | null) => {
-    if (!goal || goal === 0) return 0;
-    return Math.min(Math.round((value / goal) * 100), 100);
-  };
-
   // Calculate remaining calories
   const remainingCalories = safeCalorieGoal - safeCalories;
-
-  // Calculate macronutrient percentages for visualization
-  const totalCalories = safeCalories;
-  const proteinCalories = safeProtein * 4;
-  const carbCalories = safeCarbs * 4;
-  const fatCalories = safeFat * 9;
-
-  const proteinPercentage = totalCalories
-    ? Math.round((proteinCalories / totalCalories) * 100)
-    : 0;
-  const carbPercentage = totalCalories
-    ? Math.round((carbCalories / totalCalories) * 100)
-    : 0;
-  const fatPercentage = totalCalories
-    ? Math.round((fatCalories / totalCalories) * 100)
-    : 0;
 
   // Calculate calorie status
   const getCalorieStatus = () => {
     if (!goals.calories)
       return { label: "No goal set", color: "text-gray-500" };
 
-    const percentage = calculateProgress(safeCalories, safeCalorieGoal);
+    const percentage = Math.min(
+      Math.round((safeCalories / safeCalorieGoal) * 100),
+      100
+    );
 
+    if (percentage > 100)
+      return {
+        label: "Over goal",
+        color: "text-red-500",
+      };
+    if (percentage <= 100 && percentage >= 80)
+      return {
+        label: "On target",
+        color: "text-emerald-500",
+      };
     if (percentage < 80)
       return {
         label: "Under goal",
         color: "text-amber-500",
       };
-    if (percentage <= 100)
-      return {
-        label: "On target",
-        color: "text-emerald-500",
-      };
-    return {
-      label: "Over goal",
-      color: "text-red-500",
-    };
+    return { label: "No goal set", color: "text-gray-500" };
   };
 
   const calorieStatus = getCalorieStatus();
@@ -100,12 +69,12 @@ export default function DailySummary({
     <Card className="bg-white shadow-md border-0 rounded-xl overflow-hidden hover-card animate-fade-in">
       <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
         <CardTitle className="text-xl font-semibold text-gray-900">
-          {isToday ? "Today's Summary" : formattedDate}
+          Today&apos;s Summary
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="p-5 border-b border-gray-100">
-          <div className="flex justify-between items-start mb-3">
+          <div className="flex justify-between items-start">
             <div>
               <div className="flex items-center">
                 <Target className="h-5 w-5 text-blue-500 mr-2" />
@@ -130,15 +99,6 @@ export default function DailySummary({
               </div>
             </div>
           </div>
-
-          <div className="w-full bg-gray-100 rounded-full h-2.5 mt-2">
-            <div
-              className="bg-blue-500 h-2.5 rounded-full animate-pulse-slow"
-              style={{
-                width: `${calculateProgress(safeCalories, safeCalorieGoal)}%`,
-              }}
-            ></div>
-          </div>
         </div>
 
         {/* Macronutrient Breakdown Section */}
@@ -148,26 +108,19 @@ export default function DailySummary({
               Macronutrient Breakdown
             </h3>
 
-            {/* Visualization Bar */}
-            <div className="w-full h-3 flex rounded-full overflow-hidden mb-2">
-              <div
-                className="bg-emerald-500 h-full"
-                style={{ width: `${proteinPercentage}%` }}
-              ></div>
-              <div
-                className="bg-amber-500 h-full"
-                style={{ width: `${carbPercentage}%` }}
-              ></div>
-              <div
-                className="bg-red-500 h-full"
-                style={{ width: `${fatPercentage}%` }}
-              ></div>
-            </div>
-
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Protein: {proteinPercentage / 100}%</span>
-              <span>Carbs: {carbPercentage / 100}%</span>
-              <span>Fat: {fatPercentage / 100}%</span>
+            <div className="grid grid-cols-3 gap-4 text-center text-xs text-gray-600 mb-4">
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full mr-1"></div>
+                <span>Protein</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
+                <span>Carbs</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                <span>Fat</span>
+              </div>
             </div>
           </div>
 
@@ -186,17 +139,6 @@ export default function DailySummary({
                   / {safeProteinGoal} g
                 </span>
               </div>
-              <div className="w-full bg-white/50 rounded-full h-1.5 mt-2">
-                <div
-                  className="bg-emerald-500 h-1.5 rounded-full"
-                  style={{
-                    width: `${calculateProgress(
-                      safeProtein,
-                      safeProteinGoal
-                    )}%`,
-                  }}
-                ></div>
-              </div>
             </div>
 
             {/* Carbs */}
@@ -213,14 +155,6 @@ export default function DailySummary({
                   / {safeCarbsGoal} g
                 </span>
               </div>
-              <div className="w-full bg-white/50 rounded-full h-1.5 mt-2">
-                <div
-                  className="bg-amber-500 h-1.5 rounded-full"
-                  style={{
-                    width: `${calculateProgress(safeCarbs, safeCarbsGoal)}%`,
-                  }}
-                ></div>
-              </div>
             </div>
 
             {/* Fat */}
@@ -236,14 +170,6 @@ export default function DailySummary({
                 <span className="text-sm text-gray-500 ml-1">
                   / {safeFatGoal} g
                 </span>
-              </div>
-              <div className="w-full bg-white/50 rounded-full h-1.5 mt-2">
-                <div
-                  className="bg-red-500 h-1.5 rounded-full"
-                  style={{
-                    width: `${calculateProgress(safeFat, safeFatGoal)}%`,
-                  }}
-                ></div>
               </div>
             </div>
           </div>

@@ -166,23 +166,11 @@ export default function NutritionStats({
                 onClick={() => setChartMetric("calories")}
                 className={`text-xs py-1 px-3 font-medium ${
                   chartMetric === "calories"
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-black"
                     : "bg-transparent text-gray-600"
                 } rounded-none`}
               >
                 Calories
-              </Button>
-              <Button
-                variant={chartMetric === "macros" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setChartMetric("macros")}
-                className={`text-xs py-1 px-3 font-medium ${
-                  chartMetric === "macros"
-                    ? "bg-primary text-white"
-                    : "bg-transparent text-gray-600"
-                } rounded-none`}
-              >
-                Macros
               </Button>
             </div>
 

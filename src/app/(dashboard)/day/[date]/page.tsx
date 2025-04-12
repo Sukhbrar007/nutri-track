@@ -1,10 +1,9 @@
 "use client";
 
-import { Suspense } from "react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { format, isValid } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -43,7 +42,9 @@ export default function DayPage() {
 
   useEffect(() => {
     if (params.date) {
-      const parsedDate = new Date(params.date as string);
+      const dateString = params.date as string;
+      const parsedDate = parseISO(`${dateString}T12:00:00`);
+
       if (isValid(parsedDate)) {
         setDate(parsedDate);
       } else {
@@ -81,7 +82,7 @@ export default function DayPage() {
       setError(null);
 
       try {
-        const dateString = date.toISOString().split("T")[0];
+        const dateString = params.date as string;
         const response = await fetch(`/api/log?date=${dateString}`);
 
         if (!response.ok) {
@@ -101,23 +102,23 @@ export default function DayPage() {
     if (session && date) {
       fetchFoodLogs();
     }
-  }, [session, date]);
+  }, [session, date, params.date]);
 
   if (!session || !date) {
     return null;
   }
 
   const formattedDate = format(date, "EEEE, MMMM d, yyyy");
-  const dateString = date.toISOString().split("T")[0];
 
-  // Calculate totals
+  const dateString = params.date as string;
+
   const totals = calculateTotalNutrition(foodLogs);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-center mb-6">
         <Link
-          href="/calendar"
+          href="/dashboard"
           className="mr-4 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center"
         >
           <ChevronLeft size={20} />
@@ -128,7 +129,7 @@ export default function DayPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="md:col-span-3">
           <Suspense fallback={<Loading />}>
-            <DailySummary summary={totals} goals={goals} date={date} />
+            <DailySummary summary={totals} goals={goals} />
           </Suspense>
         </div>
       </div>
