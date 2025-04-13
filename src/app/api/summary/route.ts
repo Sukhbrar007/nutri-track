@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
-// Get summary data for the dashboard
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -34,6 +33,10 @@ export async function GET(request: Request) {
     startDate.setDate(startDate.getDate() - days);
     startDate.setHours(0, 0, 0, 0);
 
+    console.log(
+      `Querying logs from ${startDate.toISOString()} to ${endDate.toISOString()}`
+    );
+
     // Get food logs for the date range
     const foodLogs = await prisma.foodLog.findMany({
       where: {
@@ -48,8 +51,11 @@ export async function GET(request: Request) {
       },
     });
 
+    console.log(`Found ${foodLogs.length} food logs`);
+
     // Group logs by date and calculate totals
     const dailySummaries = foodLogs.reduce((acc, log) => {
+      // Use client-friendly date format (YYYY-MM-DD)
       const dateStr = log.date.toISOString().split("T")[0];
 
       if (!acc[dateStr]) {
@@ -73,8 +79,10 @@ export async function GET(request: Request) {
     // Convert to array
     const dailyData = Object.values(dailySummaries);
 
-    // Calculate today's summary
+    // Calculate today's summary explicitly
     const today = new Date().toISOString().split("T")[0];
+    console.log(`Today's date for summary: ${today}`);
+
     const todaySummary = dailySummaries[today] || {
       date: today,
       calories: 0,
@@ -82,6 +90,8 @@ export async function GET(request: Request) {
       carbs: 0,
       fat: 0,
     };
+
+    console.log(`Today's summary:`, todaySummary);
 
     return NextResponse.json({
       goals: {

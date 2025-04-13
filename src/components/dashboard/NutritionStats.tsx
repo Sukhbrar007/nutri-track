@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { format, subDays, isAfter } from "date-fns";
+import { format, subDays, isAfter, addDays, parseISO } from "date-fns";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -57,6 +57,7 @@ export default function NutritionStats({
 
     const startDate = subDays(today, daysToSubtract);
 
+    // Filter data within date range and shift dates forward by 1 day
     return data
       .filter((day) => {
         const dayDate = new Date(day.date);
@@ -64,6 +65,16 @@ export default function NutritionStats({
           isAfter(dayDate, startDate) ||
           day.date === format(startDate, "yyyy-MM-dd")
         );
+      })
+      .map((day) => {
+        // Create a new object with date shifted forward by 1 day
+        const originalDate = parseISO(day.date);
+        const shiftedDate = addDays(originalDate, 1);
+        return {
+          ...day,
+          date: format(shiftedDate, "yyyy-MM-dd"),
+          displayDate: format(shiftedDate, "yyyy-MM-dd"), // Keep original for reference if needed
+        };
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
@@ -145,7 +156,7 @@ export default function NutritionStats({
     }
   };
 
-  // Format date label
+  // Format date label - this now shows the shifted date
   const formatDateLabel = (dateStr: string) => {
     return format(new Date(dateStr), "d MMM");
   };

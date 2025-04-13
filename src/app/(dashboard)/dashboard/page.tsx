@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -8,10 +9,18 @@ import DailySummary from "@/components/dashboard/DailySummary";
 import Loading from "@/components/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, Target, BarChart2, Settings, Plus } from "lucide-react";
+import {
+  ArrowRight,
+  Target,
+  Calendar,
+  BarChart2,
+  Settings,
+  Plus,
+} from "lucide-react";
 import CalendarView from "@/components/dashboard/CalendarView";
 import NutritionStats from "@/components/dashboard/NutritionStats";
 
+// Define interfaces
 interface NutritionGoals {
   calories: number | null;
   protein: number | null;
@@ -19,7 +28,7 @@ interface NutritionGoals {
   fat: number | null;
 }
 
-interface DailySummary {
+interface DailySummaryData {
   date: string;
   calories: number;
   protein: number;
@@ -27,70 +36,92 @@ interface DailySummary {
   fat: number;
 }
 
-function DashboardPageContent() {
+// Main dashboard component
+function DashboardContent() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [goals, setGoals] = useState<NutritionGoals>({
-    calories: null,
-    protein: null,
-    carbs: null,
-    fat: null,
-  });
-  const [todaySummary, setTodaySummary] = useState<DailySummary>({
+  const [todayData, setTodayData] = useState<DailySummaryData>({
     date: format(new Date(), "yyyy-MM-dd"),
     calories: 0,
     protein: 0,
     carbs: 0,
     fat: 0,
   });
-  const [dailyData, setDailyData] = useState<DailySummary[]>([]);
+  const [goals, setGoals] = useState<NutritionGoals>({
+    calories: null,
+    protein: null,
+    carbs: null,
+    fat: null,
+  });
+  const [dailyData, setDailyData] = useState<DailySummaryData[]>([]);
 
   useEffect(() => {
-    const fetchSummaryData = async () => {
+    if (!session) return;
+
+    const loadDashboardData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch("/api/summary");
+        // Fetch all data from the summary endpoint
+        const summaryResponse = await fetch("/api/summary");
 
-        if (!response.ok) {
+        if (!summaryResponse.ok) {
           throw new Error("Failed to fetch summary data");
         }
 
-        const data = await response.json();
+        const summaryData = await summaryResponse.json();
+        console.log("API Response:", summaryData); // For debugging
 
-        // Process date strings directly without timezone conversion
-        const processedTodaySummary = {
-          ...data.todaySummary,
-          date: data.todaySummary.date.split("T")[0],
-        };
+        // Get the goals from the summary response
+        if (summaryData.goals) {
+          setGoals(summaryData.goals);
+        }
 
-        const processedDailyData = data.dailyData.map((day: any) => ({
-          ...day,
-          date: day.date.split("T")[0],
-        }));
+        // Process today's data
+        if (summaryData.todaySummary) {
+          // Make sure we're getting a clean date string without time component
+          const processedTodaySummary = {
+            ...summaryData.todaySummary,
+            date: summaryData.todaySummary.date.split("T")[0],
+          };
+          setTodayData(processedTodaySummary);
+          console.log("Today's data updated:", processedTodaySummary); // For debugging
+        } else {
+          console.warn("No today's summary data found in API response");
+        }
 
-        setGoals(data.goals);
-        setTodaySummary(processedTodaySummary);
-        setDailyData(processedDailyData);
-      } catch (error) {
-        console.error("Error fetching summary:", error);
-        setError("Could not load your nutrition data. Please try again later.");
+        // Process historical data
+        if (summaryData.dailyData && Array.isArray(summaryData.dailyData)) {
+          const processedDailyData = summaryData.dailyData.map(
+            (day: { date: string }) => ({
+              ...day,
+              date: day.date.split("T")[0],
+            })
+          );
+          setDailyData(processedDailyData);
+        } else {
+          console.warn(
+            "No daily data found in API response or incorrect format"
+          );
+        }
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+        setError("Failed to load your nutrition data");
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (session) {
-      fetchSummaryData();
-    }
+    loadDashboardData();
   }, [session]);
 
-  // Format current date
+  // Current date
   const today = new Date();
   const formattedDate = format(today, "EEEE, MMMM d, yyyy");
 
+  // Return early if no session
   if (!session) {
     return null;
   }
@@ -124,8 +155,11 @@ function DashboardPageContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6">
-                <DailySummary summary={todaySummary} goals={goals} />
+                {/* Today's Summary */}
+                {/* <DailySummary summary={todayData} goals={goals} /> */}
+                <NutritionStats data={dailyData} nutritionGoals={goals} />
 
+                {/* Quick Actions */}
                 <Card className="bg-white border border-gray-100 shadow-md rounded-xl overflow-hidden">
                   <CardHeader className="border-b border-gray-100 pb-3">
                     <CardTitle className="text-xl font-semibold">
@@ -148,6 +182,22 @@ function DashboardPageContent() {
                         </div>
                         <ArrowRight className="h-4 w-4 text-blue-500 opacity-0 group-hover:opacity-100 transition" />
                       </a>
+
+                      <a
+                        href="/calendar"
+                        className="group bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 p-3 rounded-xl transition flex items-center justify-between"
+                      >
+                        <div className="flex items-center">
+                          <div className="bg-white rounded-lg p-2 shadow-sm mr-3">
+                            <Calendar className="h-5 w-5 text-amber-500" />
+                          </div>
+                          <span className="font-medium text-gray-800">
+                            View Calendar
+                          </span>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-amber-500 opacity-0 group-hover:opacity-100 transition" />
+                      </a>
+
                       <a
                         href="/calculator"
                         className="group bg-gradient-to-r from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 p-3 rounded-xl transition flex items-center justify-between"
@@ -183,7 +233,7 @@ function DashboardPageContent() {
               </div>
 
               <div className="space-y-6">
-                <NutritionStats data={dailyData} nutritionGoals={goals} />
+                {/* Nutrition Goals */}
                 <Card className="bg-white border border-gray-100 shadow-md rounded-xl overflow-hidden">
                   <CardHeader className="border-b border-gray-100 pb-3">
                     <CardTitle className="text-xl font-semibold flex items-center">
@@ -266,7 +316,7 @@ function DashboardPageContent() {
 export default function DashboardPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <DashboardPageContent />
+      <DashboardContent />
     </Suspense>
   );
 }

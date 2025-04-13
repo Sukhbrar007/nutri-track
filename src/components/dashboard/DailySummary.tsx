@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -45,22 +46,20 @@ export default function DailySummary({ summary, goals }: DailySummaryProps) {
       100
     );
 
-    if (percentage > 100)
-      return {
-        label: "Over goal",
-        color: "text-red-500",
-      };
-    if (percentage <= 100 && percentage >= 80)
-      return {
-        label: "On target",
-        color: "text-emerald-500",
-      };
     if (percentage < 80)
       return {
         label: "Under goal",
         color: "text-amber-500",
       };
-    return { label: "No goal set", color: "text-gray-500" };
+    if (percentage <= 100)
+      return {
+        label: "On target",
+        color: "text-emerald-500",
+      };
+    return {
+      label: "Over goal",
+      color: "text-red-500",
+    };
   };
 
   const calorieStatus = getCalorieStatus();
@@ -68,9 +67,18 @@ export default function DailySummary({ summary, goals }: DailySummaryProps) {
   return (
     <Card className="bg-white shadow-md border-0 rounded-xl overflow-hidden hover-card animate-fade-in">
       <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
-        <CardTitle className="text-xl font-semibold text-gray-900">
-          Today&apos;s Summary
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl font-semibold text-gray-900">
+            Today's Summary
+          </CardTitle>
+          <span className="text-sm text-gray-500">
+            {new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="p-5 border-b border-gray-100">
