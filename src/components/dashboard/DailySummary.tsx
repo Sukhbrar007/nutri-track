@@ -71,13 +71,6 @@ export default function DailySummary({ summary, goals }: DailySummaryProps) {
           <CardTitle className="text-xl font-semibold text-gray-900">
             Today's Summary
           </CardTitle>
-          <span className="text-sm text-gray-500">
-            {new Date().toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
         </div>
       </CardHeader>
       <CardContent className="p-0">

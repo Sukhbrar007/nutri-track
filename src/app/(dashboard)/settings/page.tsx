@@ -127,7 +127,10 @@ function SettingsPageContent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div
+      className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+      suppressHydrationWarning
+    >
       <div className="flex items-center mb-8">
         <button
           onClick={() => router.push("/dashboard")}
@@ -163,10 +166,6 @@ function SettingsPageContent() {
                 {session.user.name || "User"}
               </h3>
               <p className="text-gray-500 mb-6">{session.user.email}</p>
-
-              <Button variant="outline" className="w-full justify-center">
-                Edit Profile
-              </Button>
             </div>
           </CardContent>
         </Card>

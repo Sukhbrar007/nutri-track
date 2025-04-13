@@ -136,6 +136,22 @@ export default function NutritionStats({
     return ticks.reverse(); // Start from the top
   };
 
+  // Get bar color based on goal achievement
+  const getBarColor = (value: number, goalValue: number | null | undefined) => {
+    // Handle undefined case by converting to null
+    const safeGoalValue = goalValue === undefined ? null : goalValue;
+
+    if (!safeGoalValue) return "bg-blue-400"; // Default if no goal
+
+    // Calculate percentage of goal
+    const percentage = (value / safeGoalValue) * 100;
+
+    if (value === 0) return "bg-gray-300"; // Empty bar
+    if (percentage < 80) return "bg-blue-400"; // Under goal - blue
+    if (percentage <= 100) return "bg-green-500"; // Reached goal - green
+    return "bg-red-400"; // Over goal - red
+  };
+
   // Handle period change
   const handlePeriodChange = (period: Period) => {
     setPeriodFilter(period);
@@ -366,25 +382,23 @@ export default function NutritionStats({
                 {filteredData.map((day, index) => (
                   <div key={day.date} className="flex flex-col items-center">
                     {chartMetric === "calories" ? (
-                      // Calories bar
+                      // Calories bar with goal-based coloring
                       <div
                         className="relative"
                         style={{ width: `${barWidth}px` }}
                       >
                         <div
-                          className={`w-full rounded-t-md ${
-                            day.calories >
-                            (nutritionGoals?.calories || Infinity)
-                              ? "bg-red-400"
-                              : "bg-blue-400"
-                          }`}
+                          className={`w-full rounded-t-md ${getBarColor(
+                            day.calories,
+                            nutritionGoals?.calories
+                          )}`}
                           style={{
                             height: `${scaleValue(day.calories)}px`,
                           }}
                         ></div>
                       </div>
                     ) : (
-                      // Macros bars
+                      // Macros bars with goal-based coloring
                       <div
                         className="flex space-x-1"
                         style={{ width: `${barWidth * 3 + 2}px` }}
@@ -394,7 +408,10 @@ export default function NutritionStats({
                           style={{ width: `${barWidth}px` }}
                         >
                           <div
-                            className="w-full rounded-t-md bg-emerald-400"
+                            className={`w-full rounded-t-md ${getBarColor(
+                              day.protein,
+                              nutritionGoals?.protein
+                            )}`}
                             style={{
                               height: `${scaleValue(day.protein)}px`,
                             }}
@@ -405,7 +422,10 @@ export default function NutritionStats({
                           style={{ width: `${barWidth}px` }}
                         >
                           <div
-                            className="w-full rounded-t-md bg-amber-400"
+                            className={`w-full rounded-t-md ${getBarColor(
+                              day.carbs,
+                              nutritionGoals?.carbs
+                            )}`}
                             style={{
                               height: `${scaleValue(day.carbs)}px`,
                             }}
@@ -416,7 +436,10 @@ export default function NutritionStats({
                           style={{ width: `${barWidth}px` }}
                         >
                           <div
-                            className="w-full rounded-t-md bg-red-400"
+                            className={`w-full rounded-t-md ${getBarColor(
+                              day.fat,
+                              nutritionGoals?.fat
+                            )}`}
                             style={{
                               height: `${scaleValue(day.fat)}px`,
                             }}
@@ -440,7 +463,11 @@ export default function NutritionStats({
                 <>
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-blue-400 rounded-sm mr-1"></div>
-                    <span className="text-xs text-gray-500">Calories</span>
+                    <span className="text-xs text-gray-500">Under Goal</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-3 h-3 bg-green-500 rounded-sm mr-1"></div>
+                    <span className="text-xs text-gray-500">Goal Reached</span>
                   </div>
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-red-400 rounded-sm mr-1"></div>
@@ -450,16 +477,16 @@ export default function NutritionStats({
               ) : (
                 <>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-sm mr-1"></div>
-                    <span className="text-xs text-gray-500">Protein</span>
+                    <div className="w-3 h-3 bg-green-500 rounded-sm mr-1"></div>
+                    <span className="text-xs text-gray-500">Goal Reached</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-amber-400 rounded-sm mr-1"></div>
-                    <span className="text-xs text-gray-500">Carbs</span>
+                    <div className="w-3 h-3 bg-blue-400 rounded-sm mr-1"></div>
+                    <span className="text-xs text-gray-500">Under Goal</span>
                   </div>
                   <div className="flex items-center">
                     <div className="w-3 h-3 bg-red-400 rounded-sm mr-1"></div>
-                    <span className="text-xs text-gray-500">Fat</span>
+                    <span className="text-xs text-gray-500">Over Goal</span>
                   </div>
                 </>
               )}

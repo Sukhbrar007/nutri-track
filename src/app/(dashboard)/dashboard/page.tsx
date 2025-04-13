@@ -184,21 +184,6 @@ function DashboardContent() {
                       </a>
 
                       <a
-                        href="/calendar"
-                        className="group bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 p-3 rounded-xl transition flex items-center justify-between"
-                      >
-                        <div className="flex items-center">
-                          <div className="bg-white rounded-lg p-2 shadow-sm mr-3">
-                            <Calendar className="h-5 w-5 text-amber-500" />
-                          </div>
-                          <span className="font-medium text-gray-800">
-                            View Calendar
-                          </span>
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-amber-500 opacity-0 group-hover:opacity-100 transition" />
-                      </a>
-
-                      <a
                         href="/calculator"
                         className="group bg-gradient-to-r from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 p-3 rounded-xl transition flex items-center justify-between"
                       >

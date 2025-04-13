@@ -155,24 +155,12 @@ export default function FoodList({ foodLogs, date, onUpdate }: FoodListProps) {
     }
   };
 
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       {/* Header with date and actions */}
       <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Food Log</h2>
-          <p className="text-sm text-gray-500">{formatDate(date)}</p>
         </div>
 
         <div className="flex gap-2 self-end sm:self-auto">
